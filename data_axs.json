@@ -1,0 +1,40 @@
+{
+    "_parent_entries": [
+        [
+            "^",
+            "core_collection"
+        ],
+        [
+            "^",
+            "byname",
+            "git"
+        ]
+    ],
+    "tags": [
+        "collection",
+        "git_repo"
+    ],
+    "contained_entries": {
+        "base_qaic_config": "base_qaic_config",
+        "base_qaic_model": "base_qaic_model",
+        "base_qaic_profile": "base_qaic_profile",
+        "model_onnx_bert_large_block_pruned_82.6_recipe": "model_onnx_bert_large_block_pruned_82.6_recipe",
+        "model_onnx_bert_large_block_pruned_83.2_recipe": "model_onnx_bert_large_block_pruned_83.2_recipe",
+        "model_qaic_bert-99.9_recipe": "model_qaic_bert-99.9_recipe",
+        "model_qaic_bert-99_recipe": "model_qaic_bert-99_recipe",
+        "model_qaic_resnet50_recipe": "model_qaic_resnet50_recipe",
+        "model_qaic_retinanet_recipe": "model_qaic_retinanet_recipe",
+        "model_tf_resnet50_shape_fixed": "model_tf_resnet50_shape_fixed",
+        "opencv_process_imagenet": "opencv_process_imagenet",
+        "profile_qaic_bert-99_recipe": "profile_qaic_bert-99_recipe",
+        "profile_qaic_resnet50_recipe": "profile_qaic_resnet50_recipe",
+        "profile_qaic_retinanet_recipe": "profile_qaic_retinanet_recipe",
+        "qaic_tool_parser": "qaic_tool_parser",
+        "node_precision_info_retinanet": "node_precision_info_retinanet",
+        "preprocessed_openimages_pillow_torch": "preprocessed_openimages_pillow_torch",
+        "qaic_hardware_control": "qaic_hardware_control"
+    },
+    "repo_name": "axs2qaic",
+    "submodules": false,
+    "checkout": "main"
+}

@@ -1,0 +1,39 @@
+{
+    "_parent_entries": [ [ "^", "byname", "python_script" ] ],
+    "_producer_rules": [
+        [ ["inference_ready", "onnx_model", "model_name=bert_large_block_pruned_82.6" ], [["run"]], {} ]
+    ],
+
+    "model_name": "bert_large_block_pruned_82.6",
+    "repo": "madlag/bert-large-uncased-wwm-squadv2-x2.63-f82.6-d16-hybrid-v1",
+    "model_feature": "question-answering",
+
+    "return_this_entry": [ "^^", "execute", [[
+        [ "get", "__record_entry__" ],
+        [ "set_path", "inference_ready_bert_large_block_pruned_82.6" ],
+        [ "attach", [ "^", "work_collection" ] ],
+        [ "plant", [ 
+            "tags", [ "inference_ready", "onnx_model"],
+            "model_name", [ "^^", "substitute", "#{model_name}#" ],
+            "weight_transformations", "PyTorch -> ONNX",
+            "input_layers_tms", "['input_ids','attention_mask','token_type_ids']",
+            "file_name", "model.onnx"
+        ]],
+        [ "save" ]
+    ]] ],
+    "target_dirname": [ "^^", "execute", [[
+        [ "get", "return_this_entry" ],
+        [ "get_path" ],
+        0,
+        [ "func", "os.path.dirname" ]
+    ]] ],
+
+    "python_deps": [
+        [ "^", "byquery", "python_package,package_name=setuptools-rust"],
+        [ "^", "byquery", "python_package,package_name=torch"],
+        [ "^", "byquery", "python_package,package_name=transformers[onnx]"]
+    ],
+    "abs_script_path": "-m transformers.onnx",
+
+    "script_extra_params": [ "^^", "substitute", "--preprocessor tokenizer --feature \"#{model_feature}#\" --model=\"#{repo}#\" \"#{target_dirname}#\"" ]
+}

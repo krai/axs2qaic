@@ -1,0 +1,61 @@
+{
+    "_parent_entries": [ [ "^", "byname", "base_qaic_profile" ] , [ "^", "byname", "shell" ] ],
+    "_producer_rules": [
+        [ [ "profile", "device=qaic", "model_name=resnet50" ], [["run"]], {"return_saved_record_entry": true} ]
+    ],
+
+    "model_name": "resnet50",
+
+    "onnx_model_source": [ "^", "execute", [[
+        [ "byquery", "tf_model,shape_fixed,model_name=resnet50" ],
+        [ "get_path" ]
+    ]] ],
+
+    "index_file" : null,
+    "example_of_index_file": "cal_image_list_option_1.txt",
+
+    "first_n": 20,
+
+    "query_end": [ "^^", "case",   [ ["^^", "get", "index_file"],
+	    null, [ "^^", "substitute", "first_n=#{first_n}#"]],
+	    {"default_value": [ "^^", "substitute", "index_file=#{index_file}#" ]}
+    ],
+    "entry_name_end": [ "^^", "case",   [ ["^^", "get", "index_file"],
+            null, [ "^^", "substitute", "first_n.#{first_n}#"]],
+            {"default_value": [ "^^", "substitute", "#{index_file}#" ]}
+    ],
+    "dataset_preprocessed_query": [ "preprocessed", "dataset_name=imagenet", "preprocess_method=opencv", [ "^^", "substitute", "#{query_end}#" ], "normalayout+" ],
+    "dataset_preprocessed_entry": [ "^", "byquery", [[ "^^", "get", "dataset_preprocessed_query" ]], {}, ["dataset_preprocessed_query"] ],
+    
+    "input_file_list": [ "^^", "dig", [ "^^", "substitute", "dataset_preprocessed_entry.input_file_list" ] ],
+    "dataset_preprocessed_dir": [ "^^", "execute", [[
+	    [ "get","dataset_preprocessed_entry" ],
+	    [ "get_path", ["preprocessed"] ]
+    ]] ],
+    "dataset_preprocessed_fof": "image_list.txt",
+    "input_batches_fof": "batch_list.txt",
+    "input_list_file": [ "^^" , "form_batches_for_profile" ],
+
+    "output_file_path": [ "^^", "execute", [[
+        [ "get", "__record_entry__" ],
+	    [ "set_path", ["^^", "substitute", "profile_qaic_resnet50_#{entry_name_end}#_bs.#{batchSize}#" ] ],
+	    [ "attach", [ "^", "work_collection" ] ],
+        [ "plant", [ "^^", "substitute", [[
+            "tags", ["profile" ],
+            "device", "#{device}#",
+            "model_name", "#{model_name}#",
+            "sut_data","#{sut_data}#",
+            "first_n","#{first_n}#",
+            "index_file", "#{index_file}#",
+            "batchSize", "#{batchSize}#",
+            "onnx_model_source", "#{onnx_model_source}#",
+            "output_file_name", "./profile.yaml"
+        ]] ] ],
+        [ "save" ],
+        [ "get_path_from", "output_file_name" ]
+    ]] ],
+
+    "output_batches_dir": "./raw",
+
+    "shell_cmd_with_subs": [ "^^", "substitute", "#{command}#"]
+}

@@ -1,0 +1,5 @@
+{
+    "_parent_entries": [["^", "byname", "base_pip_package"]],
+    "tags" : [ "qaic_tool_parser" ],
+    "rel_packages_dir": ""
+}

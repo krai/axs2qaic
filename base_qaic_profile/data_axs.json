@@ -1,0 +1,34 @@
+{
+    "_BEFORE_CODE_LOADING": [ "^^", "execute", [[
+        ["get_kernel"],
+        ["byquery", "qaic_tool_parser" ],
+        ["use"]
+    ]] ],
+
+    "qaic_tool_chain_path": "/opt/qti-aic",
+
+    "model_name": "bert-99",
+
+    "device": "qaic",
+    
+    "set_device_id": "all",
+
+    "loadgen_scenario": "Offline",
+    "sut_name": ["^", "func", "socket.gethostname" ],
+    "sut_query": ["^^", "substitute", ["sut_config,sut=#{sut_name}#,model=#{model_name}#,loadgen_scenario=#{loadgen_scenario}#,device_id=#{set_device_id}#"]],
+    "sut_entry": [ "^", "byquery", [[ "^^", "get", "sut_query" ]], {}, ["sut_query"] ],
+    "sut_data": [ "^^", "execute", [[
+        [ "get", "sut_entry" ],
+        [ "get", "config_compiletime_profile" ]
+    ]] ],
+
+    "profiling_thread": [ "^^", "get_config_from_sut", ["profiling_thread", "4"] ],
+    
+    "batchSize": [ "^^", "get_config_from_sut", ["batchSize", "1"] ],
+
+    "onnx_model_source": null,
+
+    "output_file_path": "./profile.yaml",
+
+    "command": [ "^^" ,  "parse_command" ]
+}

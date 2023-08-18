@@ -1,0 +1,62 @@
+{
+    "_parent_entries": [ [ "^", "byname", "base_qaic_model" ] , [ "^", "byname", "shell" ] ],
+    "_producer_rules": [
+        [ [ "kilt_ready", "device=qaic", "model_name=bert-99" ], [["run"]], {"return_saved_record_entry": true}, [] ]
+    ],
+
+    "model_name": "bert-99",
+
+    "loadgen_scenario": "SingleStream",
+
+    "onnx_model_source": [ "^", "execute", [[
+        [ "byquery", "quant_ready,onnx_model,packed,model_name=bert_large" ],
+        [ "get_path" ]
+    ]] ],
+
+    "profile_yaml_query": [ "^^", "substitute", ["profile,sut_name=gen_qaic_profile,device=#{device}#,model_name=#{model_name}#"]],
+    "profile_yaml_entry": [ "^", "byquery", [[ "^^", "get", "profile_yaml_query" ]], {}, ["profile_yaml_query"] ],
+    "profile": [ "^^", "execute", [[
+        [ "get", "profile_yaml_entry" ],
+        [ "get_path", "profile.yaml" ]
+    ]] ],
+
+    "input_list_file": [ "^^", "dig", "profile_yaml_entry.input_list_file"],
+
+    "output_file_path":  [ "^^", "execute", [[
+        [ "get", "__record_entry__" ],
+        [ "attach", [ "^", "work_collection" ] ],
+        [ "plant", [ "^^", "substitute", [[
+            "tags", ["kilt_ready"],
+            "device", "#{device}#",
+            "model_name", "#{model_name}#",
+            "loadgen_scenario", "#{loadgen_scenario}#",
+            "sut_name", "#{sut_name}#",
+            "input_data_types", "int32", 
+            "weight_data_types", "int8",
+            "url", "https://zenodo.org/record/3733868/files/model.ckpt-5474.data-00000-of-00001",
+            "weight_transformations", "quantized",
+            "retrained", false,
+            "onnx_model_source", "#{onnx_model_source}#",
+            "profile", "#{profile}#",
+            "input_list_file", "#{input_list_file}#",
+            "seq", "#{ml_model_seq_length}#",
+            "output_file_name", "./elfs",
+            "sut_data", "#{sut_data}#",
+            "model_input_format", "#{model_input_format}#",
+            "model_output_format", "#{model_output_format}#",
+
+            "cores", "#{cores}#", 
+            "mos", "#{mos}#", 
+            "ols", "#{ols}#",
+            "deallocDelay", "#{deallocDelay}#", 
+            "splitSize", "#{splitSize}#", 
+            "vtcmRatio", "#{vtcmRatio}#",
+            "percentile_calibration_value", "#{percentile_calibration_value}#",
+            "set_device_id", "#{set_device_id}#"
+        ]] ] ],
+        [ "save" ],
+        [ "get_path_from", "output_file_name" ]
+    ]] ],
+
+    "shell_cmd_with_subs": [ "^^", "substitute", "#{command}#" ]
+}

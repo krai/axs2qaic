@@ -1,0 +1,109 @@
+{
+    "_producer_rules": [
+        [ [ "preprocessed", "dataset_name=openimages", "preprocess_method=pillow_torch", "calibration+" ], [ ["preprocess"] ], {
+	    "source_dir": ["^^", "get", "images_calibration_directory" ],
+            "new_file_extension": "rgbf32"
+          },
+          [
+            "source_dir", "resolution", "convert_to_bgr", "offset", "first_n", "fof_name", "data_type",
+            "new_file_extension", "image_file", "data_layout", "normalayout","normalize_lower", "normalize_upper",
+            "subtract_mean", "given_channel_means", "quant_scale", "quant_offset", "quantized", "convert_to_unsigned",
+            "file_name", "dataset_name", "convert_dtype_before_resize","calibration"
+          ]
+        ],
+        [ [ "preprocessed", "dataset_name=openimages", "preprocess_method=pillow_torch" ], [ ["preprocess"] ], {
+            "quant_scale": 0.0186584499,
+            "quant_offset": 114
+        },
+          [
+            "source_dir", "resolution", "convert_to_bgr", "offset", "first_n", "fof_name", "data_type",
+            "new_file_extension", "image_file", "data_layout", "normalayout","normalize_lower", "normalize_upper",
+            "subtract_mean", "given_channel_means", "quantized", "convert_to_unsigned",
+            "file_name", "dataset_name", "convert_dtype_before_resize"
+          ]
+        ]
+    ],
+
+    "supported_extensions": [ "jpeg", "jpg", "gif", "png" ],
+
+    "numpy_query":  [ "python_package", "package_name=numpy",  ["desired_python_version", ["^", "kernel_python_major_dot_minor"]] ],
+    "pillow_query": [ "python_package", "package_name=pillow",  ["desired_python_version", ["^", "kernel_python_major_dot_minor"]] ],
+    "torch_query":  [ "python_package", "package_name=torch",  ["desired_python_version", ["^", "kernel_python_major_dot_minor"]] ],
+    "torchvision_query":  [ "python_package", "package_name=torchvision",  ["desired_python_version", ["^", "kernel_python_major_dot_minor"]] ],
+
+    "_BEFORE_CODE_LOADING": [ "^^", "execute", [[
+        ["get_kernel"],
+        ["byquery", [[ "^^", "get", "numpy_query" ]] ],
+        ["use"],
+        [],
+        ["get_kernel"],
+        ["byquery", [[ "^^", "get", "pillow_query" ]] ],
+        ["use"],
+        [],
+        ["get_kernel"],
+        ["byquery", [[ "^^", "get", "torch_query" ]] ],
+        ["use"],
+        [],
+        ["get_kernel"],
+        ["byquery", [[ "^^", "get", "torchvision_query" ]] ],
+        ["use"]
+    ]] ],
+
+    "images_validation_query": [ "downloaded", "openimages_mlperf", "validation+" ],
+    "images_validation_directory": [ "^", "execute", [[
+        [ "byquery", [[ "^^", "get", "images_validation_query" ]] ],
+        [ "get_path",[[ "validation", "data" ]] ]
+    ]], {}, [ "images_validation_query" ] ],
+    
+    "images_calibration_query": [ "openimages_mlperf", "calibration" ],
+    "images_calibration_directory": [ "^", "execute", [[
+        [ "byquery", [[ "^^", "get", "images_calibration_query" ]] ],
+        [ "get_path",[[ "calibration", "data" ]] ]
+    ]], {}, [ "images_calibration_query" ] ],
+    "annotation_query": [ "inference_ready", "openimages_annotations", "v2_1" ],
+    "annotations_filepath": [ "^", "execute", [[
+        [ "byquery", [[ "^^", "get", "annotation_query" ]] ],
+        [ "get_path" ]
+    ]], {}, [ "annotation_query" ] ],
+
+    "source_dir": ["^^", "get", "images_validation_directory" ],
+
+    "model_name": "retinanet",
+    "model_query": [ "downloaded", "onnx_model", "no_nms", [ "^^", "substitute", "model_name=#{model_name}#" ] ],
+    "model_entry": [ "^", "byquery", [[ "^^", "get", "model_query" ]], {}, ["model_query"] ],
+
+    "mlperf_inference_git_entry": [ "^", "byquery", "git_repo,repo_name=mlperf_inference_git" ],
+    
+    "calibration": false,
+    "calibration_dir": [ "^^", "execute", [[
+        [ "get", "mlperf_inference_git_entry" ],
+        [ "get_path", [["calibration", "openimages"]] ]
+        ]], {}, ["mlperf_inference_git_entry"] ],
+
+    "input_file_list": [ "^^", "generate_file_list" ],
+    "resolution": [ "^^", "dig", "model_entry.resolution" ],
+    "convert_to_bgr": false,
+    "offset": 0,
+    "volume_str": "",
+    "first_n": null,
+    "fof_name": "original_dimensions.txt",
+    "data_type": "float32",
+    "new_file_extension": "rgb8",
+    "image_file": "",
+    "input_data_type": "float32",
+    "data_layout": [ "^^", "dig", "model_entry.normalization.data_layout" ],
+    "normalayout": false,
+    "subtract_mean":  [ "^^", "dig", "model_entry.normalization.subtract_mean_bool" ],
+    "given_channel_means": [ "^^", "dig", "model_entry.normalization.given_channel_means" ],
+    "given_channel_stds": [ "^^", "dig", "model_entry.normalization.given_channel_stds" ],
+    "normalize_symmetric": [ "^^", "dig", "model_entry.normalization.normalize_symmetric" ],
+    "normalize_lower":[ "^^", "dig", "model_entry.normalization.normalize_lower" ],
+    "normalize_upper": [ "^^", "dig", "model_entry.normalization.normalize_upper" ],
+    "quant_scale": 1,
+    "quant_offset": 0.0,
+    "quantized": false,
+    "convert_to_unsigned": false,
+    "convert_dtype_before_resize": false,
+    "dataset_name": "openimages",
+    "file_name": "preprocessed"
+}

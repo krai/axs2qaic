@@ -1,0 +1,40 @@
+{
+    "_parent_entries": [ ["^", "byname", "base_qaic_profile" ], [ "^", "byname", "shell" ] ],
+    "_producer_rules": [
+        [ [ "profile", "device=qaic", "model_name=bert-99" ], [["run"]], {"return_saved_record_entry": true} ]
+    ],
+
+    "model_name": "bert-99",
+
+    "onnx_model_source": [ "^", "execute", [[
+        [ "byquery", "quant_ready,onnx_model,packed,model_name=bert_large" ],
+        [ "get_path" ]
+    ]] ],
+
+    "dataset_query": [ "efficient_seq_packed", "squad_v1_1" ],
+    "dataset_entry": [ "^", "byquery", [[ "^^", "get", "dataset_query" ]], {}, ["dataset_query"] ],
+    "input_list_file": [ "^^", "execute", [[
+        [ "get", "dataset_entry" ],
+        [ "get_path", "packed/inputfiles.txt" ]
+    ]] ],
+    "max_seq_length": [ "^^", "dig", "dataset_entry.max_seq_length" ],
+
+    "output_file_path": [ "^^", "execute", [[
+        [ "get", "__record_entry__" ],
+	    [ "set_path", "profile_qaic_bert-99" ],
+	    [ "attach", [ "^", "work_collection" ] ],
+        [ "plant", [ "^^", "substitute", [[
+            "tags", ["profile" ],
+            "device", "#{device}#",
+            "model_name", "#{model_name}#",
+            "onnx_model_source", "#{onnx_model_source}#",
+            "input_list_file", "#{input_list_file}#",
+            "output_file_name", "./profile.yaml",
+            "sut_data", "#{sut_data}#"
+        ]] ] ],
+        [ "save" ],
+        [ "get_path_from", "output_file_name" ]
+    ]] ],
+
+    "shell_cmd_with_subs": [ "^^", "substitute", "#{command}#"]
+}

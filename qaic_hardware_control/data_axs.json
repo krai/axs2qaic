@@ -1,0 +1,42 @@
+{
+    "device_id": 2,
+
+    "vc_dec": 17,
+    "vc_hex": [ "^^", "func", [ "hex", [ "^^", "get", "vc_dec" ] ] ],
+
+    "architecture": [ "^", "execute", [[
+        [ "byname", "shell" ],
+        [ "run", [ "uname -p" ], { "capture_output": true } ]
+    ]], {} ],
+
+    "get_vc": [ "^^", "execute", [[
+        [ "get_kernel" ],
+        [ "byname", "shell" ],
+        [ "run", [], {
+                "env": {
+                    "LD_LIBRARY_PATH": [ "^^", "substitute", "/opt/qti-aic/dev/lib/#{architecture}#" ]
+                },
+                "shell_cmd": [ "^^", "substitute", "/opt/qti-aic/tools/qaic-diag -d #{device_id}# -m 0x4B 0x66 0x04 0x1 | grep Diag -A1" ],
+                "capture_output": true,
+                "split_to_lines": true
+            } ],
+        [ "__getitem__", -1 ],
+        [ "split", " " ],
+        [ "__getitem__", 4 ],
+        0,
+        [ "func", "eval" ]
+    ]], {} ],
+
+    "set_vc": [ "^^", "execute", [[
+        [ "get_kernel" ],
+        [ "byname", "shell" ],
+        [ "run", [], {
+                "env": {
+                    "LD_LIBRARY_PATH": [ "^^", "substitute", "/opt/qti-aic/dev/lib/#{architecture}#" ]
+                },
+                "shell_cmd": [ "^^", "substitute", "/opt/qti-aic/tools/qaic-diag -d #{device_id}# -m 0x4B 0x66 0x05 0x1 #{vc_hex}# | grep Diag -A1" ]
+            } ],
+        [],
+        [ "get", "vc_hex" ]
+    ]], {} ]
+}

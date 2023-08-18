@@ -1,0 +1,51 @@
+{
+    "_parent_entries": [ [ "^", "byname", "shell" ], [ "^", "byname", "base_qaic_model" ] ],
+    "_producer_rules": [
+        [ [ "kilt_ready", "device=qaic", "model_name=bert-99.9" ], [["run"]], { "return_saved_record_entry": true }, [] ]
+    ],
+
+    "model_name": "bert-99.9",
+
+    "loadgen_scenario": "Offline",
+
+    "onnx_model_source": [ "^", "execute", [[
+        [ "byquery", "quant_ready,onnx_model,packed,model_name=bert_large" ],
+        [ "get_path" ]
+    ]] ],
+
+    "output_file_path":  [ "^^", "execute", [[
+        [ "get", "__record_entry__" ],
+        [ "attach", [ "^", "work_collection" ] ],
+        [ "plant", [ "^^", "substitute", [[
+            "tags", ["kilt_ready"],
+            "device", "#{device}#",
+            "model_name", "#{model_name}#",
+            "loadgen_scenario", "#{loadgen_scenario}#",
+            "sut_name", "#{sut_name}#",
+            "input_data_types", "int32",
+            "weight_data_types", "int8",
+            "url", "https://zenodo.org/record/3733868/files/model.ckpt-5474.data-00000-of-00001",
+            "weight_transformations", "quantized",
+            "retrained", false,
+            "onnx_model_source", "#{onnx_model_source}#",
+            "input_list_file", "#{input_list_file}#",
+            "seq", "#{ml_model_seq_length}#",
+            "output_file_name", "#{output_file_path}#",
+            "sut_data", "#{sut_data}#",
+            "model_input_format", "#{model_input_format}#",
+            "model_output_format", "#{model_output_format}#",
+
+            "cores", "#{cores}#", 
+            "mos", "#{mos}#", 
+            "ols", "#{ols}#",
+            "deallocDelay", "#{deallocDelay}#", 
+            "splitSize", "#{splitSize}#", 
+            "vtcmRatio", "#{vtcmRatio}#",
+            "set_device_id", "#{set_device_id}#"
+        ]] ] ],
+        [ "save" ],
+        [ "get_path_from", "output_file_name" ]
+    ]] ],
+
+    "shell_cmd_with_subs": [ "^^", "substitute", "#{command}#" ]
+}
